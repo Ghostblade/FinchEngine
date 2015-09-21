@@ -11,7 +11,7 @@ public:
 	DOM();
 	~DOM();
 private:
-
+	GLuint m_vao;
 };
 
 
