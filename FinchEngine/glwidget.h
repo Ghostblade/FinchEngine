@@ -11,7 +11,7 @@
 #include <QWheelEvent>
 
 #include "model.h"
-
+#include "clmanager.h"
 
 class GLWidget : public QOpenGLWidget
 {

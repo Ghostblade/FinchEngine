@@ -1,5 +1,7 @@
 #include "clmanager.h"
-
+#include <windows.h>
+#include <CL/cl_ext.h>
+#include <stdio.h>
 
 CLManager::CLManager()
 {
@@ -54,8 +56,40 @@ CLManager::CLManager()
 	m_errors[-CL_INVALID_COMPILER_OPTIONS] = "CL_INVALID_COMPILER_OPTIONS";
 	m_errors[-CL_INVALID_LINKER_OPTIONS] = "CL_INVALID_LINKER_OPTIONS";
 	m_errors[-CL_INVALID_DEVICE_PARTITION_COUNT] = "CL_INVALID_DEVICE_PARTITION_COUNT";
+	m_errors[-CL_INVALID_PROPERTY] = "CL_INVALID_PROPERTY";
+	cl_int cl_status;
+
+	cl_uint platform_cnt = 0;
+	cl_status  = clGetPlatformIDs(0, NULL, &platform_cnt);
+	if (cl_status!=CL_SUCCESS)
+	{
+		getErrorInfo("get platform", -cl_status);
+	}
+
+	clGetGLContextInfoKHR_fn _clGetGLContextInfoKHR = (clGetGLContextInfoKHR_fn)clGetExtensionFunctionAddress("clGetGLContextInfoKHR");
+
+	cl_platform_id lPlatform[100];
+	sStatusCL = clGetPlatformIDs(lPlatformCount, lPlatform, NULL);
+	oclSuccess("clGetPlatformIDs");
+
+
+	cl_context_properties GL_PROPS[] =
+	{
+#ifdef WIN32
+		CL_GL_CONTEXT_KHR, (cl_context_properties)wglGetCurrentContext(),
+		CL_WGL_HDC_KHR, (cl_context_properties)wglGetCurrentDC(),
+#else
+		CL_GL_CONTEXT_KHR, (cl_context_properties)glXGetCurrentContext(),
+		CL_GLX_DISPLAY_KHR, (intptr_t)glXGetCurrentDisplay(),
+#endif
+		CL_CONTEXT_PLATFORM, (cl_context_properties)lPlatform[i],
+		0
+	};
 }
 
+void CLManager::getErrorInfo(const char* funcname, int idx){
+	printf("%s %s\n", funcname, m_errors[idx]);
+}
 
 CLManager::~CLManager()
 {
