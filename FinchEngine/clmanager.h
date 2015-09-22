@@ -4,11 +4,11 @@
 #include <CL/cl.h>
 #include <CL/cl_gl.h>
 
-#define VALIDATE_KENEL(kernel) \
-if (sStatusCL != CL_SUCCESS)\
+#define VALIDATE_FUNC(func) \
+if (cl_status != CL_SUCCESS)\
 	{\
-	Log(ERR, this) << "Failure in call to clEnqueueNDRangeKernel for kernel " << #kernel << " : " << oclError(); \
-	return false; \
+	printf("function %s failed, with %s\n", #func, m_errors[cl_status]); \
+	return; \
 	}\
 
 
@@ -27,7 +27,8 @@ private:
 	void operator =(CLManager const&);
 
 	const char* m_errors[69];
-	
+	cl_context m_context;
+	cl_platform_id m_platform;
 };
 
 

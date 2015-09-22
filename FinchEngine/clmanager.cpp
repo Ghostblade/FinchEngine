@@ -3,7 +3,7 @@
 #include <CL/cl_ext.h>
 #include <stdio.h>
 
-CLManager::CLManager()
+CLManager::CLManager() :m_context(NULL)
 {
 	m_errors[-CL_SUCCESS] = "CL_SUCCESS";
 	m_errors[-CL_DEVICE_NOT_FOUND] = "CL_DEVICE_NOT_FOUND";
@@ -61,30 +61,53 @@ CLManager::CLManager()
 
 	cl_uint platform_cnt = 0;
 	cl_status  = clGetPlatformIDs(0, NULL, &platform_cnt);
-	if (cl_status!=CL_SUCCESS)
-	{
-		getErrorInfo("get platform", -cl_status);
-	}
+	VALIDATE_FUNC(clGetPlatformIDs);
 
 	clGetGLContextInfoKHR_fn _clGetGLContextInfoKHR = (clGetGLContextInfoKHR_fn)clGetExtensionFunctionAddress("clGetGLContextInfoKHR");
 
-	cl_platform_id lPlatform[100];
-	sStatusCL = clGetPlatformIDs(lPlatformCount, lPlatform, NULL);
-	oclSuccess("clGetPlatformIDs");
+	cl_platform_id platform[100];
+	cl_status = clGetPlatformIDs(platform_cnt, platform, NULL);
+	VALIDATE_FUNC(clGetPlatformIDs);
 
-
-	cl_context_properties GL_PROPS[] =
+	for (int i = 0; i < platform_cnt;++i)
 	{
-#ifdef WIN32
-		CL_GL_CONTEXT_KHR, (cl_context_properties)wglGetCurrentContext(),
-		CL_WGL_HDC_KHR, (cl_context_properties)wglGetCurrentDC(),
-#else
-		CL_GL_CONTEXT_KHR, (cl_context_properties)glXGetCurrentContext(),
-		CL_GLX_DISPLAY_KHR, (intptr_t)glXGetCurrentDisplay(),
-#endif
-		CL_CONTEXT_PLATFORM, (cl_context_properties)lPlatform[i],
-		0
-	};
+		cl_context_properties GL_PROPS[] =
+		{
+			CL_GL_CONTEXT_KHR, (cl_context_properties)wglGetCurrentContext(),
+			CL_WGL_HDC_KHR, (cl_context_properties)wglGetCurrentDC(),
+			CL_CONTEXT_PLATFORM, (cl_context_properties)platform[i],
+			0
+		};
+
+		cl_device_id devices[100];
+		cl_uint device_cnt;
+		cl_status = clGetDeviceIDs(platform[i], CL_DEVICE_TYPE_GPU, 100, devices, &device_cnt);
+		if (cl_status!=CL_SUCCESS)
+		{
+			continue;
+		}
+		if (device_cnt)
+		{
+			size_t gl_device_cnt = 0;
+			cl_device_id gl_device;
+			cl_status = _clGetGLContextInfoKHR(GL_PROPS, CL_CURRENT_DEVICE_FOR_GL_CONTEXT_KHR, sizeof(cl_device_id), &gl_device, &gl_device_cnt);
+			VALIDATE_FUNC(_clGetGLContextInfoKHR);
+
+			if (!gl_device_cnt)
+			{
+				//you need a better machine, you need a decent n-card
+				return;
+			}
+			else{
+				m_context = clCreateContext(GL_PROPS, device_cnt, devices, NULL, NULL, &cl_status);
+				VALIDATE_FUNC(clCreateContext);
+
+			}
+
+
+		}
+	}
+
 }
 
 void CLManager::getErrorInfo(const char* funcname, int idx){
