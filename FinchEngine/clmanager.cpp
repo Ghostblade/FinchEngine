@@ -102,12 +102,76 @@ CLManager::CLManager() :m_context(NULL)
 				m_context = clCreateContext(GL_PROPS, device_cnt, devices, NULL, NULL, &cl_status);
 				VALIDATE_FUNC(clCreateContext);
 
+				m_platform = platform[i];
+
+				char namebuf[200];
+				cl_status = clGetPlatformInfo(m_platform, CL_PLATFORM_VENDOR, sizeof(namebuf), namebuf, NULL);
+				printf("OpenCL platform %s is created!\n", namebuf);
+
+				for (int i = 0; i < device_cnt;++i)
+				{
+					m_devices.push_back(devices[i]);
+				}
+
+				for (int i = 0; i < device_cnt;++i)
+				{
+					cl_command_queue cur_queue = clCreateCommandQueue(m_context, m_devices[i], CL_QUEUE_PROFILING_ENABLE, &cl_status);
+					VALIDATE_FUNC(clCreateCommandQueue);
+					
+					m_queues.push_back(cur_queue);
+				}
 			}
-
-
 		}
 	}
+}
 
+char* CLManager::readFile(const char* filename, size_t* size){
+	FILE* handle = fopen(filename, "r");
+
+	if (!handle)
+	{
+		perror("file not found!!!!!\n");
+		exit(1);
+	}
+	fseek(handle, 0, SEEK_END);
+
+	*size = (size_t)ftell(handle);
+	rewind(handle);
+	char* buffer = (char*)malloc(*size + 1);
+	buffer[*size] = '\0';
+
+	fread(buffer, sizeof(char), *size, handle);
+	fclose(handle);
+
+	return buffer;
+}
+
+void CLManager::setSource(const char* srcname){
+	char *programBuf, *programLog;
+	size_t programSize, logSize;
+	int err;
+
+	programBuf = readFile(srcname, &programSize);
+	m_program = clCreateProgramWithSource(m_context, 1, (const char**)&programBuf, &programSize, &err);
+
+	if (err < 0){
+		perror("program cannot be created!\n");
+		exit(1);
+	}
+	free(programBuf);
+
+	err = clBuildProgram(m_program, 0, NULL, NULL, NULL, NULL);
+	if (err < 0){
+		clGetProgramBuildInfo(m_program, m_devices[0], CL_PROGRAM_BUILD_LOG,
+			0, NULL, &logSize);
+		programLog = (char*)malloc(logSize + 1);
+		programLog[logSize] = '\0';
+		clGetProgramBuildInfo(m_program, m_devices[0], CL_PROGRAM_BUILD_LOG,
+			logSize + 1, programLog, NULL);
+		printf("%s\n", programLog);
+		free(programLog);
+		exit(1);
+	}
 }
 
 void CLManager::getErrorInfo(const char* funcname, int idx){
@@ -116,4 +180,13 @@ void CLManager::getErrorInfo(const char* funcname, int idx){
 
 CLManager::~CLManager()
 {
+	if (!m_queues.empty())
+	{
+		for (int i = 0; i < m_queues.size();++i)
+		{
+			clReleaseCommandQueue(m_queues[i]);
+		}
+		clReleaseContext(m_context);
+		clReleaseProgram(m_program);
+	}
 }
