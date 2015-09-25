@@ -5,6 +5,8 @@
 #include <CL/cl_gl.h>
 #include <vector>
 
+using namespace std;
+
 #define VALIDATE_FUNC(func) \
 if (cl_status != CL_SUCCESS)\
 	{\
@@ -21,17 +23,25 @@ public:
 		static CLManager clm;
 		return &clm;
 	}
-	void getErrorInfo(const char* funcname, int idx);
+
+	void setSource(const char* srcname);
+	void addKernel(const char* kernelname);
 private:
 	CLManager();
 	CLManager(CLManager const&);
 	void operator =(CLManager const&);
 
+	char* readFile(const char* filename, size_t* size);
+	void getErrorInfo(const char* funcname, int idx);
+
+
 	const char* m_errors[69];
 	cl_context m_context;
 	cl_platform_id m_platform;
-	std::vector<cl_device_id> m_devices;
-	std::vector<cl_command_queue> m_queues;
+	vector<cl_device_id> m_devices;
+	vector<cl_command_queue> m_queues;
+	vector<cl_kernel> m_kernels;
+	cl_program m_program;
 };
 
 

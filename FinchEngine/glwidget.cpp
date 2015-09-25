@@ -42,6 +42,7 @@ void GLWidget::initializeGL()
 	m_func = context()->versionFunctions<QOpenGLFunctions_4_3_Core>();
 	m_func->initializeOpenGLFunctions();
 
+	CLManager::getSingletonPtr()->setSource("bsort8.cl");
 
 	m_mainCam = CameraPtr(new Camera(400, 400));
 

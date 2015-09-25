@@ -139,6 +139,7 @@
   <ItemGroup>
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="clmanager.cpp" />
+    <ClCompile Include="compositer.cpp" />
     <ClCompile Include="dom.cpp" />
     <ClCompile Include="finchengine.cpp" />
     <ClCompile Include="GeneratedFiles\Debug\moc_finchengine.cpp">
@@ -217,6 +218,7 @@
   <ItemGroup>
     <ClInclude Include="camera.h" />
     <ClInclude Include="clmanager.h" />
+    <ClInclude Include="compositer.h" />
     <ClInclude Include="dom.h" />
     <ClInclude Include="GeneratedFiles\ui_finchengine.h" />
     <ClInclude Include="material.h" />
