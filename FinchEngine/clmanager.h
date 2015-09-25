@@ -3,6 +3,7 @@
 
 #include <CL/cl.h>
 #include <CL/cl_gl.h>
+#include <vector>
 
 #define VALIDATE_FUNC(func) \
 if (cl_status != CL_SUCCESS)\
@@ -29,6 +30,8 @@ private:
 	const char* m_errors[69];
 	cl_context m_context;
 	cl_platform_id m_platform;
+	std::vector<cl_device_id> m_devices;
+	std::vector<cl_command_queue> m_queues;
 };
 
 
