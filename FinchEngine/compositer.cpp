@@ -14,13 +14,14 @@ Compositer::Compositer(QOpenGLFunctions_4_3_Core* func, int swidth, int sheight)
 	m_func->glGenRenderbuffers(1, &m_depthMSAA);
 	m_func->glBindRenderbuffer(GL_RENDERBUFFER, m_depthMSAA);
 	m_func->glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_DEPTH_COMPONENT24, swidth, sheight);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthrenderbuffer);
-	GLuint test = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	m_func->glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_depthMSAA);
+	GLuint test = m_func->glCheckFramebufferStatus(GL_FRAMEBUFFER);
 	if (test != GL_FRAMEBUFFER_COMPLETE)
 	{
-		Log::error("OpenGL", "Failed to create multi-sampled render target");
-		return 0;
+		perror("--OpenGL--Failed to create multi-sampled render target\n");
+		return;
 	}
+
 	
 // 	glBindFramebuffer(GL_FRAMEBUFFER, frameBufferObject);
 // 	glBindFramebuffer(GL_READ_FRAMEBUFFER, frameBufferObject);
@@ -158,4 +159,7 @@ Compositer::Compositer(QOpenGLFunctions_4_3_Core* func, int swidth, int sheight)
 
 Compositer::~Compositer()
 {
+	m_func->glDeleteFramebuffers(1, &m_fboMSAA);
+	m_func->glDeleteRenderbuffers(1, &m_depthMSAA);
+	m_func->glDeleteRenderbuffers(1, &m_colorMSAA);
 }

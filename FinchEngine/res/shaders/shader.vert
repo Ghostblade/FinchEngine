@@ -1,25 +1,27 @@
-#version 150
+#version 430
 
-uniform mat4 mvp; // our matrix
-in vec3 position;
-in vec3 normal;
-in vec4 texcoord;
+layout(location=0) in vec4 position;
+layout(location=1) in vec4 normal;
+layout(location=2) in vec2 texcoord;
+layout(location=3) in vec4 diffnormal;
+
+uniform mat4 mvp;
 
 out vec3 n;
-out vec4 tc;
+out vec2 tc;
+out vec3 pos;
+out vec3 diffn;
+
+out vec4 projCoord;
+uniform mat4 biasm;
 
 void main()
 {
-    // vertex shaders MUST write to gl_Position which is a vec4
-    // the vec4 constructor (vec3, double) creates a vec4 using
-    // the first three components of the vec3 and the double.
-    //
-    // this is where we make use of our vertices: the order in the buffer
-    // doesn't actually matter so much (we can create one using them
-    // individually like so: vec4(p[2], p[1], p[0], 1.0)).
-    //
-    // gl_Position wants x, y, z though, so we've used that for simplicity
-    // the reason gl_Position is a vec4 is a Long Story.
-    gl_Position = mvp * vec4(position, 1.0);
+    n=normalize(normal.xyz);
+    pos=position.xyz;
+    gl_Position = mvp * position;
     tc = texcoord;
+    diffn=normalize(diffnormal.xyz);
+
+    projCoord=biasm*gl_Position;
 }

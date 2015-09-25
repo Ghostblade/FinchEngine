@@ -17,6 +17,8 @@ private:
 	GLuint m_vao;
 	GLuint m_fbo, m_dbo;
 	TexturePtr m_screen;
+	SamplerPtr m_sampler;
+	MaterialPtr m_mat;
 	
 	GLuint m_fboMSAA, m_colorMSAA, m_depthMSAA;
 };
