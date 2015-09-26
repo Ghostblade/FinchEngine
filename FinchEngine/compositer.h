@@ -5,6 +5,8 @@
 #include <QOpenGLFunctions_4_3_Core>
 #include "material.h"
 
+const int COLORBUFCOUNT = 2;
+
 class Compositer
 {
 public:
@@ -13,17 +15,17 @@ public:
 
 private:
 	QOpenGLFunctions_4_3_Core* m_func;
-	
+
 	GLuint m_vao;
 	GLuint m_fbo, m_dbo;
-	TexturePtr m_screen;
-	TexturePtr m_depth;
+	TexturePtr m_screen[COLORBUFCOUNT];
+
 	SamplerPtr m_sampler;
 	MaterialPtr m_planeMat;
-	
-	GLuint m_fboMSAA, m_colorMSAA, m_depthMSAA;
+
+	GLuint m_fboMSAA;
+	GLuint m_colorMSAA[COLORBUFCOUNT];
+	GLuint m_depthMSAA;
 };
 
 #endif
-
-
