@@ -101,6 +101,7 @@ CLManager::CLManager() :m_context(NULL)
 			else{
 				m_context = clCreateContext(GL_PROPS, device_cnt, devices, NULL, NULL, &cl_status);
 				VALIDATE_FUNC(clCreateContext);
+				m_platform = platform[i];
 
 				m_platform = platform[i];
 
