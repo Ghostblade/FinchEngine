@@ -5,7 +5,7 @@
 #include <math.h>
 
 GLWidget::GLWidget(QWidget *parent)
-: QOpenGLWidget(parent), m_yaw(0), m_pitch(0)
+: QOpenGLWidget(parent), m_yaw(0), m_pitch(0), m_defaultFB(-1), m_swidth(1024), m_sheight(768)
 {
 }
 
@@ -33,6 +33,7 @@ void GLWidget::cleanup()
 	m_phong.clear();
 	m_mainCam.clear();
 	delete cube;
+	delete m_comp;
 	doneCurrent();
 }
 
@@ -44,7 +45,8 @@ void GLWidget::initializeGL()
 
 	CLManager::getSingletonPtr()->setSource("bsort8.cl");
 
-	m_mainCam = CameraPtr(new Camera(400, 400));
+	m_mainCam = CameraPtr(new Camera(m_swidth, m_sheight));
+	m_comp = new Compositer(m_func, m_swidth, m_sheight);
 
 	m_func->glClearColor(0, 0, 0, 1);
 
@@ -80,16 +82,29 @@ void GLWidget::initializeGL()
 
 void GLWidget::paintGL()
 {
-	m_func->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	if (m_defaultFB<0)
+	{
+		m_func->glGetIntegerv(GL_FRAMEBUFFER_BINDING, &m_defaultFB);
+		if (m_defaultFB!=0)
+		{
+			printf("--#attention! default fbo is %d\n", m_defaultFB);
+		}
+	}
+
 	m_func->glEnable(GL_DEPTH_TEST);
 	m_func->glEnable(GL_CULL_FACE);
 
+	m_comp->preRender();
 	cube->render();
+
+	m_comp->postRender(m_defaultFB);
 }
 
 void GLWidget::resizeGL(int w, int h)
 {
 	m_mainCam->updateAspect(w, h);
+	m_swidth = w;
+	m_sheight = h;
 }
 
 void GLWidget::mousePressEvent(QMouseEvent *event)

@@ -34,7 +34,7 @@ public:
     {
         if (FinchEngineClass->objectName().isEmpty())
             FinchEngineClass->setObjectName(QStringLiteral("FinchEngineClass"));
-        FinchEngineClass->resize(1024, 767);
+        FinchEngineClass->resize(1024, 788);
         centralWidget = new QWidget(FinchEngineClass);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         gridLayout = new QGridLayout(centralWidget);

@@ -13,11 +13,15 @@ public:
 	Compositer(QOpenGLFunctions_4_3_Core* func, int swidth, int sheight);
 	~Compositer();
 
+	void preRender();
+	void postRender(GLint defbuf);
+	void resize(int width, int height);
 private:
 	QOpenGLFunctions_4_3_Core* m_func;
+	int m_swidth, m_sheight;
 
 	GLuint m_vao;
-	GLuint m_fbo, m_dbo;
+	GLuint m_fbo;
 	TexturePtr m_screen[COLORBUFCOUNT];
 
 	SamplerPtr m_sampler;

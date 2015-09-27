@@ -12,6 +12,7 @@
 
 #include "model.h"
 #include "clmanager.h"
+#include "compositer.h"
 
 class GLWidget : public QOpenGLWidget
 {
@@ -40,6 +41,8 @@ private:
 	float m_yaw;
 	float m_pitch;
 
+	GLint m_defaultFB;
+
 	QPoint m_lastPos;
 
 	QOpenGLFunctions_4_3_Core* m_func;
@@ -47,6 +50,10 @@ private:
 	Model* cube;
 	MaterialPtr m_phong;
 	CameraPtr m_mainCam;
+
+	Compositer* m_comp;
+
+	int m_swidth, m_sheight;
 };
 
 #endif

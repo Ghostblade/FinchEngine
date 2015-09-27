@@ -1,8 +1,11 @@
 #include "compositer.h"
 
 
-Compositer::Compositer(QOpenGLFunctions_4_3_Core* func, int swidth, int sheight) :m_func(func)
+Compositer::Compositer(QOpenGLFunctions_4_3_Core* func, int swidth, int sheight) :m_func(func), m_swidth(swidth), m_sheight(sheight)
 {
+	//http://stackoverflow.com/questions/23362497/how-can-i-resize-existing-texture-attachments-at-my-framebuffer
+	//https://www.opengl.org/wiki/Multisampling
+
 	m_func->glGenFramebuffers(1, &m_fboMSAA);
 	m_func->glBindFramebuffer(GL_FRAMEBUFFER, m_fboMSAA);
 
@@ -47,7 +50,17 @@ Compositer::Compositer(QOpenGLFunctions_4_3_Core* func, int swidth, int sheight)
 
 	m_func->glGenFramebuffers(1, &m_fbo);
 	m_func->glGenVertexArrays(1, &m_vao);
-	m_func->glGenRenderbuffers(1, &m_dbo);
+
+	m_func->glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
+	for (int i = 0; i < COLORBUFCOUNT;++i)
+	{
+		m_func->glFramebufferTexture(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, m_screen[i]->textureID(), 0);
+	}
+
+// 	m_func->glBindRenderbuffer(GL_RENDERBUFFER, m_depthrenderbuffer);
+// 	m_func->glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, 1024, 768);
+// 	m_func->glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_depthrenderbuffer);
+
 
 	// 	glBindFramebuffer(GL_FRAMEBUFFER, frameBufferObject);
 	// 	glBindFramebuffer(GL_READ_FRAMEBUFFER, frameBufferObject);
@@ -182,6 +195,34 @@ Compositer::Compositer(QOpenGLFunctions_4_3_Core* func, int swidth, int sheight)
 	//http://manpages.ubuntu.com/manpages/saucy/man3/glClearBuffer.3G.html
 }
 
+void Compositer::preRender(){
+	m_func->glBindFramebuffer(GL_FRAMEBUFFER, m_fboMSAA);
+	m_func->glClearColor(0, 0, 0, 0);
+	m_func->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	m_func->glViewport(0, 0, m_swidth, m_sheight);
+}
+
+void Compositer::postRender(GLint defbuf){
+	m_func->glBindFramebuffer(GL_READ_FRAMEBUFFER, m_fboMSAA);
+	m_func->glReadBuffer(GL_COLOR_ATTACHMENT0);
+	m_func->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_fbo);
+	m_func->glDrawBuffer(GL_COLOR_ATTACHMENT0);
+	m_func->glBlitFramebuffer(0, 0, m_swidth, m_sheight, 0, 0, m_swidth, m_sheight, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+
+	m_func->glBindFramebuffer(GL_FRAMEBUFFER, defbuf);
+	m_func->glClearColor(0, 0, 0, 0);
+	m_func->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	m_func->glViewport(0, 0, m_swidth, m_sheight);
+
+
+	m_planeMat->bind();
+	m_func->glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	m_planeMat->release();
+}
+
+void Compositer::resize(int width, int height){
+
+}
 
 Compositer::~Compositer()
 {
@@ -200,5 +241,4 @@ Compositer::~Compositer()
 
 	m_func->glDeleteFramebuffers(1, &m_fbo);
 	m_func->glDeleteVertexArrays(1, &m_vao);
-	m_func->glDeleteRenderbuffers(1, &m_dbo);
 }
