@@ -103,8 +103,6 @@ CLManager::CLManager() :m_context(NULL)
 				VALIDATE_FUNC(clCreateContext);
 				m_platform = platform[i];
 
-				m_platform = platform[i];
-
 				char namebuf[200];
 				cl_status = clGetPlatformInfo(m_platform, CL_PLATFORM_VENDOR, sizeof(namebuf), namebuf, NULL);
 				printf("OpenCL platform %s is created!\n", namebuf);

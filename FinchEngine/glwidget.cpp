@@ -43,7 +43,7 @@ void GLWidget::initializeGL()
 	m_func = context()->versionFunctions<QOpenGLFunctions_4_3_Core>();
 	m_func->initializeOpenGLFunctions();
 
-	CLManager::getSingletonPtr()->setSource("bsort8.cl");
+	CLManager::getSingletonPtr()->setSource("bpatch.cl");
 
 	m_mainCam = CameraPtr(new Camera(m_swidth, m_sheight));
 	m_comp = new Compositer(m_func, m_swidth, m_sheight);
