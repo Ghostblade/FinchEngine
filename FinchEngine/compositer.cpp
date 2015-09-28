@@ -9,18 +9,30 @@ Compositer::Compositer(QOpenGLFunctions_4_3_Core* func, int swidth, int sheight)
 	m_func->glGenFramebuffers(1, &m_fboMSAA);
 	m_func->glBindFramebuffer(GL_FRAMEBUFFER, m_fboMSAA);
 
-	for (int i = 0; i < COLORBUFCOUNT; ++i){
-		m_func->glGenRenderbuffers(1, &m_colorMSAA[i]);
-		m_func->glBindRenderbuffer(GL_RENDERBUFFER, m_colorMSAA[i]);
-		m_func->glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_RGBA8, swidth, sheight);
-		m_func->glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_RENDERBUFFER, m_colorMSAA[i]);
+// 	for (int i = 0; i < COLORBUFCOUNT; ++i){
+// 		m_func->glGenRenderbuffers(1, &m_colorMSAA[i]);
+// 		m_func->glBindRenderbuffer(GL_RENDERBUFFER, m_colorMSAA[i]);
+// 		m_func->glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_RGBA8, swidth, sheight);
+// 		m_func->glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_RENDERBUFFER, m_colorMSAA[i]);
+// 	}
+
+	m_func->glGenTextures(COLORBUFCOUNT, m_colorMSAA);
+	for (int i = 0; i < COLORBUFCOUNT;++i)
+	{
+		m_func->glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, m_colorMSAA[i]);
+		m_func->glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, GL_RGBA8, swidth, sheight, false);
+		m_func->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D_MULTISAMPLE, m_colorMSAA[i], 0);
 	}
 
+	m_func->glGenTextures(1, &m_depthMSAA);
+	m_func->glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, m_depthMSAA);
+	m_func->glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, GL_DEPTH_COMPONENT24, swidth, sheight, false);
+	m_func->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D_MULTISAMPLE, m_depthMSAA, 0);
 
-	m_func->glGenRenderbuffers(1, &m_depthMSAA);
-	m_func->glBindRenderbuffer(GL_RENDERBUFFER, m_depthMSAA);
-	m_func->glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_DEPTH_COMPONENT24, swidth, sheight);
-	m_func->glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_depthMSAA);
+// 	m_func->glGenRenderbuffers(1, &m_depthMSAA);
+// 	m_func->glBindRenderbuffer(GL_RENDERBUFFER, m_depthMSAA);
+// 	m_func->glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_DEPTH_COMPONENT24, swidth, sheight);
+// 	m_func->glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_depthMSAA);
 	GLuint test = m_func->glCheckFramebufferStatus(GL_FRAMEBUFFER);
 	if (test != GL_FRAMEBUFFER_COMPLETE)
 	{
@@ -227,11 +239,14 @@ void Compositer::resize(int width, int height){
 Compositer::~Compositer()
 {
 	m_func->glDeleteFramebuffers(1, &m_fboMSAA);
-	m_func->glDeleteRenderbuffers(1, &m_depthMSAA);
-	for (int i = 0; i < COLORBUFCOUNT; ++i)
-	{
-		m_func->glDeleteRenderbuffers(1, &m_colorMSAA[i]);
-	}
+	//m_func->glDeleteRenderbuffers(1, &m_depthMSAA);
+// 	for (int i = 0; i < COLORBUFCOUNT; ++i)
+// 	{
+// 		//m_func->glDeleteRenderbuffers(1, &m_colorMSAA[i]);
+// 	}
+	m_func->glDeleteTextures(COLORBUFCOUNT, m_colorMSAA);
+	m_func->glDeleteTextures(1, &m_depthMSAA);
+
 	m_sampler.clear();
 	m_planeMat.clear();
 	for (int i = 0; i < COLORBUFCOUNT; ++i)
