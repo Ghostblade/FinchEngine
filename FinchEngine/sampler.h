@@ -28,6 +28,8 @@ public:
 	void setWrapMode(CoordDir dir, GLenum mode);
 	void setMinFilter(GLenum filter);
 	void setMaxFilter(GLenum filter);
+	void setCompareMode(GLenum mode);
+	void setCompareFunc(GLenum func);
 private:
 	GLuint m_samplerId;
 	QOpenGLFunctions_4_3_Core* m_funcs;

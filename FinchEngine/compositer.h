@@ -30,6 +30,8 @@ private:
 	GLuint m_fboMSAA;
 	GLuint m_colorMSAA[COLORBUFCOUNT];
 	GLuint m_depthMSAA;
+
+	QVector<QVector<GLfloat>> m_clearCols;
 };
 
 #endif

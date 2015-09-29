@@ -43,7 +43,7 @@ void GLWidget::initializeGL()
 	m_func = context()->versionFunctions<QOpenGLFunctions_4_3_Core>();
 	m_func->initializeOpenGLFunctions();
 
-	CLManager::getSingletonPtr()->setSource("bpatch.cl");
+// 	CLManager::getSingletonPtr()->setSource("bpatch.cl");
 
 	m_mainCam = CameraPtr(new Camera(m_swidth, m_sheight));
 	m_comp = new Compositer(m_func, m_swidth, m_sheight);
@@ -91,13 +91,13 @@ void GLWidget::paintGL()
 		}
 	}
 
-	m_func->glEnable(GL_DEPTH_TEST);
-	m_func->glEnable(GL_CULL_FACE);
-
-	m_comp->preRender();
-	cube->render();
-
-	m_comp->postRender(m_defaultFB);
+// 	m_func->glEnable(GL_DEPTH_TEST);
+// 	m_func->glEnable(GL_CULL_FACE);
+// 
+// 	m_comp->preRender();
+// 	cube->render();
+// 
+// 	m_comp->postRender(m_defaultFB);
 }
 
 void GLWidget::resizeGL(int w, int h)
@@ -105,6 +105,8 @@ void GLWidget::resizeGL(int w, int h)
 	m_mainCam->updateAspect(w, h);
 	m_swidth = w;
 	m_sheight = h;
+
+	m_comp->resize(w, h);
 }
 
 void GLWidget::mousePressEvent(QMouseEvent *event)

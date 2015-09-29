@@ -31,4 +31,5 @@ uniform int process;
 void main()
 {
     color=texture(textureSampler, tc);
+    depthcolor=vec4(1,1,1,1);
 }

@@ -44,7 +44,11 @@ public:
 	void setShader(const QString& v_src, const QString& t_c_src, const QString& t_e_src, const QString& g_src, const QString& f_src);
 
 	void setShader(const ShaderProgramPtr& shader);
-	ShaderProgramPtr& shader()  { return m_shader; }
+	ShaderProgramPtr& shader()  {
+		return m_shader;
+	}
+
+	GLuint LoadShaders(const char * vertex_file_path, const char * fragment_file_path);
 
 	void setTextureUnitConfiguration(GLuint unit, TexturePtr texture, SamplerPtr sampler);
 	void setTextureUnitConfiguration(GLuint unit, TexturePtr texture, SamplerPtr sampler, const QByteArray& uniformName);

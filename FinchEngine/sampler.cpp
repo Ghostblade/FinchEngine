@@ -40,3 +40,11 @@ void Sampler::setMinFilter(GLenum filter){
 void Sampler::setMaxFilter(GLenum filter){
 	m_funcs->glSamplerParameteri(m_samplerId, GL_TEXTURE_MAG_FILTER, filter);
 }
+
+void Sampler::setCompareFunc(GLenum func){
+	m_funcs->glSamplerParameteri(m_samplerId, GL_TEXTURE_COMPARE_FUNC, func);
+}
+
+void Sampler::setCompareMode(GLenum mode){
+	m_funcs->glSamplerParameteri(m_samplerId, GL_TEXTURE_COMPARE_MODE, mode);
+}
